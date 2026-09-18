@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<title>Jatek feltoltese</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="brand">🎮 Jatek Galeria</a>
+  <div class="links" id="nav-links"></div>
+</nav>
+
+<div class="auth-box">
+  <h2>Uj jatek feltoltese</h2>
+  <div class="error-msg" id="err"></div>
+  <form id="upload-form">
+    <input type="text" name="title" placeholder="Jatek cime" required>
+    <textarea name="description" placeholder="Rovid leiras" rows="3"></textarea>
+    <select name="category">
+      <option value="arcade">Arcade</option>
+      <option value="puzzle">Puzzle</option>
+      <option value="platformer">Platformer</option>
+      <option value="egyeb" selected>Egyeb</option>
+    </select>
+    <label class="file-label" id="file-label">Kattints ide es valaszd ki a .html jatekfajlt</label>
+    <input type="file" name="gamefile" accept=".html" required style="display:none" id="file-input">
+    <button type="submit">Feltoltes</button>
+  </form>
+</div>
+
+<script src="/app.js"></script>
+<script>
+(async () => {
+  const user = await renderNav();
+  if (!user) window.location.href = '/login.html';
+})();
+
+const fileInput = document.getElementById('file-input');
+const fileLabel = document.getElementById('file-label');
+fileLabel.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', () => {
+  fileLabel.textContent = fileInput.files[0] ? fileInput.files[0].name : 'Kattints ide es valaszd ki a .html jatekfajlt';
+});
+
+document.getElementById('upload-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const res = await fetch('/api/games/upload', { method: 'POST', body: formData });
+  const result = await res.json();
+  if (!res.ok) {
+    document.getElementById('err').textContent = result.error;
+    return;
+  }
+  window.location.href = '/';
+});
+</script>
+</body>
+</html>

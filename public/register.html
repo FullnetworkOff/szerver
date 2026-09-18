@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<title>Regisztracio</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="brand">🎮 Jatek Galeria</a>
+  <div class="links" id="nav-links"></div>
+</nav>
+
+<div class="auth-box">
+  <h2>Regisztracio</h2>
+  <div class="error-msg" id="err"></div>
+  <form id="register-form">
+    <input type="text" name="username" placeholder="Felhasznalonev (min. 3 karakter)" required>
+    <input type="password" name="password" placeholder="Jelszo (min. 6 karakter)" required>
+    <button type="submit">Fiok letrehozasa</button>
+  </form>
+  <p style="margin-top:14px; color:#999; font-size:14px;">
+    Mar van fiokod? <a href="/login.html" style="color:#7c8cff;">Jelentkezz be</a>
+  </p>
+</div>
+
+<script src="/app.js"></script>
+<script>
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  const res = await fetch('/api/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  const result = await res.json();
+  if (!res.ok) {
+    document.getElementById('err').textContent = result.error;
+    return;
+  }
+  window.location.href = '/';
+});
+</script>
+</body>
+</html>
