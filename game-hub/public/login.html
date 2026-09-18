@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<title>Bejelentkezes</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="brand">🎮 Jatek Galeria</a>
+  <div class="links" id="nav-links"></div>
+</nav>
+
+<div class="auth-box">
+  <h2>Bejelentkezes</h2>
+  <div class="error-msg" id="err"></div>
+  <form id="login-form">
+    <input type="text" name="username" placeholder="Felhasznalonev" required>
+    <input type="password" name="password" placeholder="Jelszo" required>
+    <button type="submit">Bejelentkezes</button>
+  </form>
+  <p style="margin-top:14px; color:#999; font-size:14px;">
+    Nincs meg fiokod? <a href="/register.html" style="color:#7c8cff;">Regisztralj</a>
+  </p>
+</div>
+
+<script src="/app.js"></script>
+<script>
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  const result = await res.json();
+  if (!res.ok) {
+    document.getElementById('err').textContent = result.error;
+    return;
+  }
+  window.location.href = '/';
+});
+</script>
+</body>
+</html>

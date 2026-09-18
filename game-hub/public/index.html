@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<title>Jatek Galeria</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="brand">🎮 Jatek Galeria</a>
+  <div class="links" id="nav-links"></div>
+</nav>
+
+<main>
+  <div class="filters" id="filters">
+    <button data-cat="osszes" class="active">Osszes</button>
+    <button data-cat="arcade">Arcade</button>
+    <button data-cat="puzzle">Puzzle</button>
+    <button data-cat="platformer">Platformer</button>
+    <button data-cat="egyeb">Egyeb</button>
+  </div>
+  <div class="grid" id="game-grid"></div>
+</main>
+
+<script src="/app.js"></script>
+<script>
+let currentUser = null;
+let currentCategory = 'osszes';
+
+async function loadGames() {
+  const res = await fetch('/api/games?category=' + currentCategory);
+  const games = await res.json();
+  const grid = document.getElementById('game-grid');
+
+  if (games.length === 0) {
+    grid.innerHTML = '<div class="empty-state">Meg nincs feltoltve jatek ebben a kategoriaban.</div>';
+    return;
+  }
+
+  grid.innerHTML = games.map(g => `
+    <div class="card">
+      <h3>${escapeHtml(g.title)}</h3>
+      <p>${escapeHtml(g.description || '')}</p>
+      <div class="meta">Feltoltotte: ${escapeHtml(g.uploaded_by)} · ${escapeHtml(g.category)}</div>
+      <div class="row">
+        <a class="play-btn" href="/api/games/play/${g.id}" target="_blank">Jatek</a>
+        ${currentUser && currentUser.username === g.uploaded_by ? `<button class="del-btn" data-id="${g.id}">Torles</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  grid.querySelectorAll('.del-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Biztosan torlod ezt a jatekot?')) return;
+      await fetch('/api/games/' + btn.dataset.id, { method: 'DELETE' });
+      loadGames();
+    });
+  });
+}
+
+document.getElementById('filters').addEventListener('click', (e) => {
+  if (e.target.tagName !== 'BUTTON') return;
+  document.querySelectorAll('#filters button').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentCategory = e.target.dataset.cat;
+  loadGames();
+});
+
+(async () => {
+  currentUser = await renderNav();
+  loadGames();
+})();
+</script>
+</body>
+</html>
